@@ -32,5 +32,50 @@ jobs:
             exit 1
           fi
 
-      - name: Show build output
-        run: ls -la bin || true
+      - name: Run each executable and capture output
+        shell: bash
+        run: |
+          mkdir -p outputs
+          if ! compgen -G "bin/*" > /dev/null; then
+            echo "No executables in bin/ to run."
+            exit 0
+          fi
+          for exe in bin/*; do
+            if [ ! -x "$exe" ]; then
+              echo "Skipping non-executable $exe"
+              continue
+            fi
+            name=$(basename "$exe")
+            out="outputs/${name}.txt"
+            echo "Running $exe -> $out"
+            # Run with timeout to prevent infinite runs (timeout exit code will be recorded)
+            timeout 10s "$exe" >"$out" 2>&1
+            rc=$?
+            echo -e "\n--- EXIT CODE: $rc ---" >> "$out"
+            if [ $rc -eq 124 ]; then
+              echo "Program timed out (exit code 124)" >> "$out"
+            fi
+          done
+
+      - name: Show a short preview of outputs
+        shell: bash
+        run: |
+          echo "Built executables:"
+          ls -la bin || true
+          echo ""
+          echo "Outputs produced:"
+          ls -la outputs || true
+          echo ""
+          # Print first 200 lines of each output for quick CI logs
+          for f in outputs/*.txt; do
+            echo "===== $f ====="
+            sed -n '1,200p' "$f" || true
+          done
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            bin/**
+            outputs/**
