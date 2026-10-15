@@ -21,6 +21,6 @@ jobs:
           echo "No .cpp files found in the repository."
           exit 1
           fi
-          g++ -std=c++17 $SRC -o main
+          g++ -std=c++17 -Iinclude $SRC -o main
       - name: Show build output
         run: ls -la main
