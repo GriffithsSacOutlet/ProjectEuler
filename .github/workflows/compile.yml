@@ -15,6 +15,12 @@ jobs:
         with:
           compiler: latest
       - name: Compile
-        run: g++ -std=c++17 main.cpp -o main
-      - name: Show build output
-        run: ls -la main
+        run: |
+          SRC=$(find . -type f -name '*.cpp' | tr '\n' ' ')
+          if [ -z "$SRC" ]; then
+          echo "No .cpp files found in the repository."
+          exit 1
+          fi
+          g++ -std=c++17 $SRC -o main
+          - name: Show build output
+            run: ls -la main
