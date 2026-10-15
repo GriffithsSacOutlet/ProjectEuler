@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Fibbonachi.h"
+#include "fibbonachi.h"
 
 int sum;
 int main()
