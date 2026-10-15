@@ -1,1 +1,20 @@
+name: Build C++ Project
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install C/C++ compiler
+        uses: rlalik/setup-cpp-compiler@master
+        with:
+          compiler: latest
+      - name: Compile
+        run: g++ -std=c++17 main.cpp -o main
+      - name: Show build output
+        run: ls -la main
